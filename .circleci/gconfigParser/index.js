@@ -1,9 +1,9 @@
-const fs = require('fs');
-const yaml = require('js-yaml');
-const url = require('url');
-const YAML = require('json-to-pretty-yaml');
+const fs = require("fs");
+const yaml = require("js-yaml");
+const url = require("url");
+const YAML = require("json-to-pretty-yaml");
 
-const logEnv = function (envName, envConfig) {
+const logEnv = function(envName, envConfig) {
 	fs.promises
 		.mkdir(`./envs/${envName}`, { recursive: true })
 		.catch(console.error);
@@ -22,12 +22,12 @@ const logEnv = function (envName, envConfig) {
 	});
 };
 
-const logApp = function (appName, appConfig) {
+const logApp = function(appName, appConfig) {
 	console.log(`Parsing app ${appConfig.envName}-${appName}`);
 
-	const projectRepoName = 'workload';
+	const projectRepoName = appConfig.project;
 	const alias = appConfig.alias ? url.parse(appConfig.alias) : null;
-	const path = !alias || alias.path === '/' ? '' : alias.path;
+	const path = !alias || alias.path === "/" ? "" : alias.path;
 
 	const envfile = {
 		APPUIO_PROJECT: appConfig.appuio_project,
@@ -35,7 +35,7 @@ const logApp = function (appName, appConfig) {
 		PROJECT: appConfig.project,
 		PART: appName,
 		IMAGE_NAME: `${appConfig.client}-${projectRepoName}:${appName}-${appConfig.envName}`,
-		HOSTNAME: alias ? `${alias.auth ? alias.auth : ''}${alias.host}` : '',
+		HOSTNAME: alias ? `${alias.auth ? alias.auth : ""}${alias.host}` : "",
 		DEPLOY_PATH: path,
 		ENVIRONMENT: appConfig.envName,
 		PORT: appConfig.port,
@@ -66,17 +66,17 @@ NB_REPLICAS: ${envfile.NB_REPLICAS}
 
 			// success case, the file was saved
 			console.log(`Generated enfile for ${appConfig.envName}-${appName}`);
-		},
+		}
 	);
 };
 
-const json = require('../../hosting.config.json');
+const json = require("../../hosting.config.json");
 const configYaml = YAML.stringify(json);
 
 try {
 	var config = yaml.safeLoad(configYaml);
 	const { environments } = config;
-	fs.promises.mkdir('./envs', { recursive: true }).catch(console.error);
+	fs.promises.mkdir("./envs", { recursive: true }).catch(console.error);
 
 	Object.entries(environments).map(([key, val]) => {
 		logEnv(key, {
