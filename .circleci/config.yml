@@ -1,6 +1,6 @@
 version: 2.1
 executors:
-  orb-executor:
+  orbing-executor:
     docker:
       - image: circleci/node:10
     environment:
@@ -126,3 +126,64 @@ commands:
           command: /
             shopt -s expand_aliases
             ../updatedns.sh "${DNS_TOKEN}" "${DNS_ACCOUNT_ID}" "{$DNS_ZONE_ID}" "{$DNS_RECORD_ID}" "${CLIENT}-${PROJECT}-${PART}-${ENVIRONMENT}"
+
+jobs:
+  build-website:
+    executor: orbing-executor
+    working_directory: /tmp/ci-orbing/website
+    steps:
+      - checkout:
+          path: /tmp/ci-orbing
+      - display_node_info
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - run:
+          name: Build Next.js
+          command: yarn run build
+      - persist_to_workspace:
+          root: /tmp/ci-orbing/website
+          paths:
+            - .next
+  deploy-website:
+    executor: orbing-executor
+    working_directory: /tmp/ci-orbing/website
+
+    steps:
+      - checkout:
+          path: /tmp/ci-orbing
+      - display_node_info
+      - attach_workspace:
+          at: /tmp/ci-orbing/website
+      - setup_remote_docker
+      - run:
+          name: Defines project part variables
+          command: |
+            echo 'export APP_NAME=web' >> $BASH_ENV
+            echo 'export PROJECT_TYPE=web' >> $BASH_ENV
+      - define_variables:
+          app: $APP_NAME
+      - run:
+          name: Build and push Docker image
+          command: |
+            docker login -u serviceaccount -p $APPUIO_TOKEN https://registry.appuio.ch
+            docker build --cache-from $REGISTERY_IMAGE \
+              -t $REGISTERY_IMAGE .
+            docker push $REGISTERY_IMAGE
+      - install_openshift_client
+      - login_to_appuio
+      - setup_appuio_project
+      - deploy_to_appuio
+      - create_dns_record
+workflows:
+  version: 2
+  pipeline:
+    jobs:
+      - build-website
+      - deploy-website:
+          requires:
+            - build-website
+          filters:
+            branches:
+              only:
+                - master
