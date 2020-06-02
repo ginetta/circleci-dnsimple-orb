@@ -126,9 +126,9 @@ commands:
     steps:
       - run:
           name: Create a dns record for the project
-          command: /
+          command: |
             shopt -s expand_aliases
-            ../updatedns.sh "${DNS_TOKEN}" "${DNS_ACCOUNT_ID}" "{$DNS_ZONE_ID}" "{$DNS_RECORD_ID}" "${CLIENT}-${PROJECT}-${PART}-${ENVIRONMENT}"
+            ../.circleci/updatedns.sh "${DNS_TOKEN}" "${DNS_ACCOUNT_ID}" "{$DNS_ZONE_ID}" "{$DNS_RECORD_ID}" "${CLIENT}-${PROJECT}-${PART}-${ENVIRONMENT}"
 
 jobs:
   build-website:
