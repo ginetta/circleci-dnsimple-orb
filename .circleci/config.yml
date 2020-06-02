@@ -17,111 +17,111 @@ commands:
           name: npm/node information
           command: |
             echo "node/npm info:$(npm version)"
-    install_openshift_client:
-      description: Install OpenShift Client
-      steps:
-        - run:
-            name: Install OpenShift Client
-            command: |
-              wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz
-              tar xvzf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz -C /tmp
-              mv /tmp/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit/oc /tmp/oc
-    login_to_appuio:
-      description: Login to APPUiO
-      steps:
-        - run:
-            name: Login to APPUiO
-            command: |
-              /tmp/oc login https://console.appuio.ch --token=$APPUIO_TOKEN
-    define_variables:
-      description: Defines variables for a project part
-      parameters:
-        app:
-          description: the app to configure
-          type: string
-      steps:
-        - jq/install
-        - run:
-            name: Install dependencies
-            command: |
-              sudo apt-get update
-              sudo apt-get install -qq -y gettext-base
-        - run:
-            name: Defines banch
-            command: |
-              echo 'export BRANCH=$(echo $CIRCLE_BRANCH | sed s:/:-:)' >> $BASH_ENV
-              source $BASH_ENV
-        - run:
-            name: Defines environment variables
-            command: |
-              if [[ "${BRANCH}" == "release" ]];
-              then
-                echo "Setting staging env vars"
-                echo "export ENVIRONMENT=staging" >> $BASH_ENV
-                echo "export APPUIO_TOKEN=$G_PROD_APPUIO_TOKEN" >> $BASH_ENV
-                echo "export DNS_TESTING_API=api.dnsimple.com" >> $BASH_ENV
-                echo "staging vars end"
-              else
-                echo "Setting testing env vars"
-                echo "export ENVIRONMENT=testing" >> $BASH_ENV
-                echo "export APPUIO_TOKEN=$G_STAGING_APPUIO_TOKEN" >> $BASH_ENV
-                echo "export DNS_TESTING_API=api.sandbox.dnsimple.com" >> $BASH_ENV
-                echo "testing vars end"
-              fi
-              echo "export DNS_TOKEN=$G_DNS_TOKEN" >> $BASH_ENV
-              echo "export DNS_ACCOUNT_ID=$G_DNS_ACCOUNT_ID" >> $BASH_ENV
-              echo "export DNS_ZONE_ID=$G_DNS_ZONE_ID" >> $BASH_ENV
-              echo "export DNS_RECORD_ID=$G_DNS_RECORD_ID" >> $BASH_ENV
-              echo "export APPUIO_URL=cname.appuioapp.ch" >> $BASH_ENV
-              source $BASH_ENV
-        - run:
-            name: Defines more variables for the app
-            command: |
-              echo 'export IMAGE_NAME=$G_CLIENT_NAME-$G_PROJECT_NAME:$APP_NAME-$ENVIRONMENT' >> $BASH_ENV
-              echo 'export REGISTERY_IMAGE=registry.appuio.ch/$APPUIO_PROJECT/$IMAGE_NAME' >> $BASH_ENV
-              echo 'export APPUIO_APP_NAME=$G_CLIENT_NAME-$G_PROJECT_NAME-$ENVIRONMENT' >> $BASH_ENV
-              echo 'export APPUIO_TEMPLATE=appuio_${PROJECT_TYPE}.yml' >> $BASH_ENV
-    setup_appuio_project:
-      description: Check and setup APPUiO project
-      steps:
-        - run:
-            name: Check and setup APPUiO project
-            command: |
-              shopt -s expand_aliases
-              alias oc="/tmp/oc -n $APPUIO_PROJECT"
-              echo "Name of the app on appuio: $APPUIO_APP_NAME-$APP_NAME"
-              if ! oc get dc $APPUIO_APP_NAME-${APP_NAME} 2>&1 > /dev/null; then
-                # app does not exist yet - create new deployment
-                echo "Setting up $APPUIO_APP_NAME-${APP_NAME}"
-                oc process -f ../.circleci/${APPUIO_TEMPLATE} --local=true \
-                  -p APPUIO_PROJECT=${APPUIO_PROJECT} \
-                  -p CLIENT=${G_CLIENT_NAME} \
-                  -p PROJECT=${G_PROJECT_NAME} \
-                  -p PART=${APP_NAME} \
-                  -p IMAGE_NAME=${IMAGE_NAME} \
-                  -p HOSTNAME=${APP_HOSTNAME} \
-                  -p DEPLOY_PATH=${APP_PATH} \
-                  -p ENVIRONMENT=${ENVIRONMENT} \
-                  -p PORT=${APP_PORT} \
-                  | oc -n ${APPUIO_PROJECT} apply -f -
-              fi
-    deploy_to_appuio:
-      description: Trigger deployement on APPUiO
-      steps:
-        - run:
-            name: Trigger deployement on APPUiO
-            command: |
-              shopt -s expand_aliases
-              alias oc="/tmp/oc -n $APPUIO_PROJECT"
-              echo "Rolling out latest image"
-              # deploy latest image
-              oc rollout latest dc/$APPUIO_APP_NAME-${APP_NAME}
-              # wait for rollout to finish and watch status
-              oc rollout status dc/$APPUIO_APP_NAME-${APP_NAME} -w
-    create_dns_record:
-      description: Create a dns record for the project
-      steps:
-        -run:
+  install_openshift_client:
+    description: Install OpenShift Client
+    steps:
+      - run:
+          name: Install OpenShift Client
+          command: |
+            wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz
+            tar xvzf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz -C /tmp
+            mv /tmp/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit/oc /tmp/oc
+  login_to_appuio:
+    description: Login to APPUiO
+    steps:
+      - run:
+          name: Login to APPUiO
+          command: |
+            /tmp/oc login https://console.appuio.ch --token=$APPUIO_TOKEN
+  define_variables:
+    description: Defines variables for a project part
+    parameters:
+      app:
+        description: the app to configure
+        type: string
+    steps:
+      - jq/install
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -qq -y gettext-base
+      - run:
+          name: Defines banch
+          command: |
+            echo 'export BRANCH=$(echo $CIRCLE_BRANCH | sed s:/:-:)' >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Defines environment variables
+          command: |
+            if [[ "${BRANCH}" == "release" ]];
+            then
+              echo "Setting staging env vars"
+              echo "export ENVIRONMENT=staging" >> $BASH_ENV
+              echo "export APPUIO_TOKEN=$G_PROD_APPUIO_TOKEN" >> $BASH_ENV
+              echo "export DNS_TESTING_API=api.dnsimple.com" >> $BASH_ENV
+              echo "staging vars end"
+            else
+              echo "Setting testing env vars"
+              echo "export ENVIRONMENT=testing" >> $BASH_ENV
+              echo "export APPUIO_TOKEN=$G_STAGING_APPUIO_TOKEN" >> $BASH_ENV
+              echo "export DNS_TESTING_API=api.sandbox.dnsimple.com" >> $BASH_ENV
+              echo "testing vars end"
+            fi
+            echo "export DNS_TOKEN=$G_DNS_TOKEN" >> $BASH_ENV
+            echo "export DNS_ACCOUNT_ID=$G_DNS_ACCOUNT_ID" >> $BASH_ENV
+            echo "export DNS_ZONE_ID=$G_DNS_ZONE_ID" >> $BASH_ENV
+            echo "export DNS_RECORD_ID=$G_DNS_RECORD_ID" >> $BASH_ENV
+            echo "export APPUIO_URL=cname.appuioapp.ch" >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Defines more variables for the app
+          command: |
+            echo 'export IMAGE_NAME=$G_CLIENT_NAME-$G_PROJECT_NAME:$APP_NAME-$ENVIRONMENT' >> $BASH_ENV
+            echo 'export REGISTERY_IMAGE=registry.appuio.ch/$APPUIO_PROJECT/$IMAGE_NAME' >> $BASH_ENV
+            echo 'export APPUIO_APP_NAME=$G_CLIENT_NAME-$G_PROJECT_NAME-$ENVIRONMENT' >> $BASH_ENV
+            echo 'export APPUIO_TEMPLATE=appuio_${PROJECT_TYPE}.yml' >> $BASH_ENV
+  setup_appuio_project:
+    description: Check and setup APPUiO project
+    steps:
+      - run:
+          name: Check and setup APPUiO project
+          command: |
+            shopt -s expand_aliases
+            alias oc="/tmp/oc -n $APPUIO_PROJECT"
+            echo "Name of the app on appuio: $APPUIO_APP_NAME-$APP_NAME"
+            if ! oc get dc $APPUIO_APP_NAME-${APP_NAME} 2>&1 > /dev/null; then
+              # app does not exist yet - create new deployment
+              echo "Setting up $APPUIO_APP_NAME-${APP_NAME}"
+              oc process -f ../.circleci/${APPUIO_TEMPLATE} --local=true \
+                -p APPUIO_PROJECT=${APPUIO_PROJECT} \
+                -p CLIENT=${G_CLIENT_NAME} \
+                -p PROJECT=${G_PROJECT_NAME} \
+                -p PART=${APP_NAME} \
+                -p IMAGE_NAME=${IMAGE_NAME} \
+                -p HOSTNAME=${APP_HOSTNAME} \
+                -p DEPLOY_PATH=${APP_PATH} \
+                -p ENVIRONMENT=${ENVIRONMENT} \
+                -p PORT=${APP_PORT} \
+                | oc -n ${APPUIO_PROJECT} apply -f -
+            fi
+  deploy_to_appuio:
+    description: Trigger deployement on APPUiO
+    steps:
+      - run:
+          name: Trigger deployement on APPUiO
+          command: |
+            shopt -s expand_aliases
+            alias oc="/tmp/oc -n $APPUIO_PROJECT"
+            echo "Rolling out latest image"
+            # deploy latest image
+            oc rollout latest dc/$APPUIO_APP_NAME-${APP_NAME}
+            # wait for rollout to finish and watch status
+            oc rollout status dc/$APPUIO_APP_NAME-${APP_NAME} -w
+  create_dns_record:
+    description: Create a dns record for the project
+    steps:
+      - run:
           name: Create a dns record for the project
           command: /
             shopt -s expand_aliases
