@@ -4,8 +4,8 @@ executors:
     docker:
       - image: circleci/node:10
     environment:
-      - G_CLIENT_NAME: 'ginetta'
-      - G_PROJECT_NAME: 'orbing'
+      - G_CLIENT_NAME: "ginetta"
+      - G_PROJECT_NAME: "orbing"
 orbs:
   jq: circleci/jq@2.0.1
 
@@ -59,11 +59,21 @@ commands:
                 echo "Setting staging env vars"
                 echo "export ENVIRONMENT=staging" >> $BASH_ENV
                 echo "export APPUIO_TOKEN=$G_PROD_APPUIO_TOKEN" >> $BASH_ENV
+                echo "export DNS_TESTING_API=api.dnsimple.com" >> $BASH_ENV
+                echo "export DNS_TOKEN=$G_DNS_TOKEN" >> $BASH_ENV
+                echo "export ACCOUNT_ID=$G_ACCOUNT_ID" >> $BASH_ENV
+                echo "export RECORD_ID=$G_RECORD_ID" >> $BASH_ENV
+                echo "export APPUIO_URL=cname.appuioapp.ch" >> $BASH_ENV
                 echo "staging vars end"
               else
                 echo "Setting testing env vars"
                 echo "export ENVIRONMENT=testing" >> $BASH_ENV
                 echo "export APPUIO_TOKEN=$G_STAGING_APPUIO_TOKEN" >> $BASH_ENV
+                echo "export DNS_TESTING_API=api.sandbox.dnsimple.com" >> $BASH_ENV
+                echo "export DNS_TOKEN=$G_DNS_TOKEN" >> $BASH_ENV
+                echo "export ACCOUNT_ID=$G_ACCOUNT_ID" >> $BASH_ENV
+                echo "export RECORD_ID=$G_RECORD_ID" >> $BASH_ENV
+                echo "export APPUIO_URL=cname.appuioapp.ch" >> $BASH_ENV
                 echo "testing vars end"
               fi
               source $BASH_ENV
@@ -111,3 +121,9 @@ commands:
               oc rollout latest dc/$APPUIO_APP_NAME-${APP_NAME}
               # wait for rollout to finish and watch status
               oc rollout status dc/$APPUIO_APP_NAME-${APP_NAME} -w
+    create_dns_record:
+      description: Create a dns record for the project
+      steps:
+        -run:
+          name: Create a dns record for the project
+          command: /
