@@ -1,0 +1,184 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {},
+    "items": [
+        {
+            "apiVersion": "apps.openshift.io/v1",
+            "kind": "DeploymentConfig",
+            "metadata": {
+                "labels": {
+                    "app": "ginetta-orbing-testing-web",
+                    "customer": "ginetta",
+                    "environment": "testing"
+                },
+                "name": "ginetta-orbing-testing-web"
+            },
+            "spec": {
+                "replicas": 1,
+                "revisionHistoryLimit": 3,
+                "selector": {
+                    "app": "ginetta-orbing-testing-web",
+                    "customer": "ginetta",
+                    "deploymentconfig": "ginetta-orbing-testing-web"
+                },
+                "strategy": {
+                    "activeDeadlineSeconds": 21600,
+                    "resources": {},
+                    "rollingParams": {
+                        "intervalSeconds": 1,
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%",
+                        "timeoutSeconds": 600,
+                        "updatePeriodSeconds": 1
+                    },
+                    "type": "Rolling"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "ginetta-orbing-testing-web",
+                            "customer": "ginetta",
+                            "deploymentconfig": "ginetta-orbing-testing-web",
+                            "environment": "testing"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": null,
+                                "image": "docker-registry.default.svc:5000/gnta-devel/ginetta-orbing:web-testing",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "ginetta-orbing-testing-web",
+                                "ports": [
+                                    {
+                                        "containerPort": 3000,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "100m",
+                                        "memory": "128Mi"
+                                    },
+                                    "requests": {
+                                        "cpu": "50m",
+                                        "memory": "64Mi"
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30
+                    }
+                },
+                "test": false,
+                "triggers": [
+                    {
+                        "imageChangeParams": {
+                            "containerNames": [
+                                "ginetta-orbing-testing-web"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "ginetta-orbing:web-testing",
+                                "namespace": "gnta-devel"
+                            }
+                        },
+                        "type": "ImageChange"
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "labels": {
+                    "app": "ginetta-orbing-testing-web",
+                    "customer": "ginetta",
+                    "environment": "testing"
+                },
+                "name": "ginetta-orbing-testing-web"
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "3000-tcp",
+                        "port": 3000,
+                        "protocol": "TCP",
+                        "targetPort": 3000
+                    }
+                ],
+                "selector": {
+                    "app": "ginetta-orbing-testing-web",
+                    "customer": "ginetta",
+                    "deploymentconfig": "ginetta-orbing-testing-web"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            }
+        },
+        {
+            "apiVersion": "route.openshift.io/v1",
+            "kind": "Route",
+            "metadata": {
+                "annotations": {
+                    "kubernetes.io/tls-acme": "true"
+                },
+                "labels": {
+                    "app": "ginetta-orbing-testing-web",
+                    "customer": "ginetta",
+                    "environment": "testing"
+                },
+                "name": "ginetta-orbing-testing-web"
+            },
+            "spec": {
+                "host": "ginetta-orbing-website-testing.ginetta.dev",
+                "path": "/",
+                "port": {
+                    "targetPort": 3000
+                },
+                "to": {
+                    "kind": "Service",
+                    "name": "ginetta-orbing-testing-web",
+                    "weight": 100
+                },
+                "wildcardPolicy": "None"
+            }
+        },
+        {
+            "apiVersion": "route.openshift.io/v1",
+            "kind": "Route",
+            "metadata": {
+                "annotations": {
+                    "kubernetes.io/tls-acme": "true"
+                },
+                "labels": {
+                    "app": "ginetta-orbing-testing-web",
+                    "customer": "ginetta",
+                    "environment": "testing"
+                },
+                "name": "ginetta-orbing-testing-web-temp"
+            },
+            "spec": {
+                "host": "ginetta-orbing-testing.appuioapp.ch",
+                "path": "/",
+                "port": {
+                    "targetPort": 3000
+                },
+                "to": {
+                    "kind": "Service",
+                    "name": "ginetta-orbing-testing-web",
+                    "weight": 100
+                },
+                "wildcardPolicy": "None"
+            }
+        }
+    ]
+}
