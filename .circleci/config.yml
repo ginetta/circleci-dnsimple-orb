@@ -164,6 +164,7 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
+            echo "REGISTERY_IMAGE :: $REGISTERY_IMAGE"
             docker login -u serviceaccount -p $APPUIO_TOKEN https://registry.appuio.ch
             docker build --cache-from $REGISTERY_IMAGE \
               -t $REGISTERY_IMAGE .
