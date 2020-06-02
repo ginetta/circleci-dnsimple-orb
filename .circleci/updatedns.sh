@@ -2,12 +2,12 @@
 set -e
 
 # Needed variables
-TOKEN=""  # The API v2 OAuth token
-ACCOUNT_ID=""        # Replace with your account ID
-ZONE_ID=""  # The zone ID is the name of the zone (or domain)
-RECORD_ID="" 
+TOKEN=$1  # The API v2 OAuth token
+ACCOUNT_ID=$2        # Replace with your account ID
+ZONE_ID=$3	  # The zone ID is the name of the zone (or domain)
+RECORD_ID=$4	 
 APPUIO_CNAME="cname.appuioapp.ch"
-PROJECT_NAME=""
+PROJECT_NAME=$5	
 
 # Initial check
 if [ -z "$TOKEN" ] || [ -z "$ACCOUNT_ID" ] || [ -z "$ZONE_ID" ] || [ -z "$RECORD_ID" ] || [ -z "$PROJECT_NAME" ]; then
