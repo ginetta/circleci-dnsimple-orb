@@ -138,7 +138,7 @@ jobs:
           command: npm ci
       - run:
           name: Build Next.js
-          command: yarn run build
+          command: npm run build
       - persist_to_workspace:
           root: /tmp/ci-orbing/website
           paths:
