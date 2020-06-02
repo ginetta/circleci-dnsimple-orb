@@ -9,6 +9,14 @@ RECORD_ID=$4
 APPUIO_CNAME="cname.appuioapp.ch"
 PROJECT_NAME=$5	
 
+echo "script variables"
+echo "TOKEN: $TOKEN"
+echo "ACCOUNT_ID: $ACCOUNT_ID"
+echo "ZONE_ID: $ZONE_ID"
+echo "RECORD_ID: $RECORD_ID"
+echo "APPUIO_CNAME: $APPUIO_CNAME"
+echo "PROJECT_NAME: $PROJECT_NAME"
+
 # Initial check
 if [ -z "$TOKEN" ] || [ -z "$ACCOUNT_ID" ] || [ -z "$ZONE_ID" ] || [ -z "$RECORD_ID" ] || [ -z "$PROJECT_NAME" ]; then
   echo "ERROR: required variables are not specified, check your script invocation"
