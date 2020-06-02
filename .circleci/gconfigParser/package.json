@@ -1,0 +1,15 @@
+{
+  "name": "gconfigparser",
+  "version": "1.0.0",
+  "description": "A toolkig to tranform a ghosting config file into variables",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "js-yaml": "^3.13.1",
+    "json-to-pretty-yaml": "^1.2.2"
+  }
+}

@@ -1,0 +1,12 @@
+
+APPUIO_PROJECT: gnta-devel
+CLIENT: ginetta
+PROJECT: orbing
+PART: web
+IMAGE_NAME: ginetta-workload:web-testing
+HOSTNAME: ginetta-orbing-website-testing.ginetta.dev
+DEPLOY_PATH: 
+ENVIRONMENT: testing
+PORT: 3000
+NB_REPLICAS: 1
+	  
