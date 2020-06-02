@@ -73,6 +73,11 @@ commands:
             echo "export APPUIO_URL=cname.appuioapp.ch" >> $BASH_ENV
             source $BASH_ENV
       - run:
+          name: Defines variables from config
+          command: |
+            source $BASH_ENV
+            ../.circleci/set-app-envs.sh -e $ENVIRONMENT -a <<parameters.app>>
+      - run:
           name: Defines more variables for the app
           command: |
             echo 'export IMAGE_NAME=$G_CLIENT_NAME-$G_PROJECT_NAME:$APP_NAME-$ENVIRONMENT' >> $BASH_ENV
@@ -164,7 +169,6 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
-            echo "REGISTERY_IMAGE :: $REGISTERY_IMAGE"
             docker login -u serviceaccount -p $APPUIO_TOKEN https://registry.appuio.ch
             docker build --cache-from $REGISTERY_IMAGE \
               -t $REGISTERY_IMAGE .
