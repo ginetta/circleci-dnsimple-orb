@@ -17,7 +17,7 @@ commands:
         description: Zone id or domain you want to manage
         type: string
         default: ""
-      name:
+      subdomain:
         description: content of the new record. For more information, please see dnsimple documentation
         type: string
         default: ""
@@ -29,13 +29,34 @@ commands:
       - run:
           name: make sure all params all available
           command: |
-            if [ -z << parameters.token >> ] || [ -z << parameters.account_id >> ] || [ -z << parameters.zone_id >> ] || [ -z << parameters.record >> ] || [ -z << parameters.name >> ]; then
+            if [ -z << parameters.token >> ] || [ -z << parameters.account_id >> ] || [ -z << parameters.zone_id >> ] || [ -z << parameters.subdomain >> ]; then
               echo "ERROR: required variables are not specified, check your script invocation"
               exit 1
             fi
-
       - run:
-          name: Create a new dnsnimple record
+          name: sending request
           command: |
             shopt -s expand_aliases
-            ../.circleci/updatedns.sh "$DNS_TOKEN" "$DNS_ACCOUNT_ID" "$DNS_ZONE_ID" "$DNS_RECORD_ID" "$G_CLIENT_NAME-$G_PROJECT_NAME-$APP_NAME-$ENVIRONMENT"
+            status_code=$(curl --write-out %{http_code} --silent --output /dev/null --request POST "https://api.dnsimple.com/v2/<< parameters.account_id >>/zones/<< parameters.zone_id >>/records" \
+            --header "Authorization: Bearer << parameters.token >>" \
+            --header 'Content-Type: application/json' \
+            --header 'Accept: application/json' \
+            --data "{\"name\": \"<< parameters.subdomain >>\",\"type\": \"CNAME\",\"content\": \"<< parameters.content >>\",\"ttl\": \"600\"}")
+            case "$status_code" in
+              "201")
+                echo "New record was successfully added to your domain";
+                exit 0;
+                ;;
+              "400")
+                echo "ERROR: A required parameter or the request is invalid";
+                exit 1;
+                ;;
+              "401")
+                echo "ERROR: Unauthenticated. Please make sure to add the required keys";
+                exit 1;
+                ;;
+              "500" | "502" | "503" | "504")
+                echo "Uh oh, something went wrong on DNSimple’s end";
+                exit 1;
+                ;;    
+            esac
