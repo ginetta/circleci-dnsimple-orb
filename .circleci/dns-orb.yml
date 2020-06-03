@@ -1,0 +1,14 @@
+version: 2.1
+executors:
+  orbing-executor:
+    docker:
+      - image: circleci/node:10
+commands:
+  create_dns_record:
+    description: Create a dnsnimple record for the project
+    steps:
+      - run:
+          name: Create a new dnsnimple record
+          command: |
+            shopt -s expand_aliases
+            ../.circleci/updatedns.sh "$DNS_TOKEN" "$DNS_ACCOUNT_ID" "$DNS_ZONE_ID" "$DNS_RECORD_ID" "$G_CLIENT_NAME-$G_PROJECT_NAME-$APP_NAME-$ENVIRONMENT"
