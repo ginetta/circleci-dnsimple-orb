@@ -2,20 +2,20 @@
 set -e
 
 # Needed variables
-TOKEN=$1  # The API v2 OAuth token
-ACCOUNT_ID=$2        # Replace with your account ID
-ZONE_ID=$3	  # The zone ID is the name of the zone (or domain)
+TOKEN=$1
+ACCOUNT_ID=$2
+ZONE_ID=$3
 RECORD_ID=$4	 
 APPUIO_CNAME="cname.appuioapp.ch"
 PROJECT_NAME=$5	
 
-echo "script variables"
-echo "TOKEN: $TOKEN"
-echo "ACCOUNT_ID: $ACCOUNT_ID"
-echo "ZONE_ID: $ZONE_ID"
-echo "RECORD_ID: $RECORD_ID"
-echo "APPUIO_CNAME: $APPUIO_CNAME"
-echo "PROJECT_NAME: $PROJECT_NAME"
+# echo "script variables"
+# echo "TOKEN: $TOKEN"
+# echo "ACCOUNT_ID: $ACCOUNT_ID"
+# echo "ZONE_ID: $ZONE_ID"
+# echo "RECORD_ID: $RECORD_ID"
+# echo "APPUIO_CNAME: $APPUIO_CNAME"
+# echo "PROJECT_NAME: $PROJECT_NAME"
 
 # Initial check
 if [ -z "$TOKEN" ] || [ -z "$ACCOUNT_ID" ] || [ -z "$ZONE_ID" ] || [ -z "$RECORD_ID" ] || [ -z "$PROJECT_NAME" ]; then
@@ -23,24 +23,12 @@ if [ -z "$TOKEN" ] || [ -z "$ACCOUNT_ID" ] || [ -z "$ZONE_ID" ] || [ -z "$RECORD
   exit 1
 fi
 
-function postData() 
-{
-	cat <<EOF
-{
-	"name": "$PROJECT_NAME",
-	"type": "CNAME",
-	"content": "$APPUIO_CNAME",
-	"ttl": 600
-}
-EOF
-}
-
 # Create a new record
 status_code=$(curl --write-out %{http_code} --silent --output /dev/null --request POST "https://api.dnsimple.com/v2/$ACCOUNT_ID/zones/$ZONE_ID/records" \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
---data "$(postData)")
+--data "{\"name\": \"$PROJECT_NAME\",\"type\": \"CNAME\",\"content\": \"$APPUIO_CNAME\",\"ttl\": \"600\"}")
 case "$status_code" in
 	"201")
 		echo "New record was successfully added to your domain";
