@@ -1,12 +1,39 @@
 version: 2.1
-executors:
-  orbing-executor:
-    docker:
-      - image: circleci/node:10
+description: Adds a new dns record on DNSimple
+
 commands:
   create_dns_record:
     description: Create a dnsnimple record for the project
+    parameters:
+      token:
+        description: api token can be retrieved from dnsnimple's automation package
+        type: string
+        default: ""
+      account_id:
+        description: account id
+        type: string
+        default: ""
+      zone_id:
+        description: Zone id or domain you want to manage
+        type: string
+        default: ""
+      name:
+        description: content of the new record. For more information, please see dnsimple documentation
+        type: string
+        default: ""
+      content:
+        description: content of the new record. For more information, please see dnsimple documentation
+        type: string
+        default: "cname.appuioapp.ch"
     steps:
+      - run:
+          name: make sure all params all available
+          command: |
+            if [ -z << parameters.token >> ] || [ -z << parameters.account_id >> ] || [ -z << parameters.zone_id >> ] || [ -z << parameters.record >> ] || [ -z << parameters.name >> ]; then
+              echo "ERROR: required variables are not specified, check your script invocation"
+              exit 1
+            fi
+
       - run:
           name: Create a new dnsnimple record
           command: |
