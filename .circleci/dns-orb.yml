@@ -6,35 +6,35 @@ commands:
     description: Create a dnsnimple record for the project
     parameters:
       token:
-        description: api token can be retrieved from dnsnimple's automation package
+        description: api token, can be retrieved from dnsnimple's automation page, or here https://support.dnsimple.com/articles/api-access-token/
         type: string
         default: ""
       account_id:
-        description: account id
+        description: DNSimple's account id
         type: string
         default: ""
       zone_id:
-        description: Zone id or domain you want to manage
+        description: Zone id or the domain you want to manage
         type: string
         default: ""
       subdomain:
-        description: content of the new record. For more information, please see dnsimple documentation
+        description: name of the new record. For more information, please see dnsimple documentation
         type: string
         default: ""
       content:
-        description: content of the new record. For more information, please see dnsimple documentation
+        description: content of the new record, to which to point to
         type: string
         default: "cname.appuioapp.ch"
     steps:
       - run:
-          name: make sure all params all available
+          name: DNSimple - make sure all params all available
           command: |
             if [ -z << parameters.token >> ] || [ -z << parameters.account_id >> ] || [ -z << parameters.zone_id >> ] || [ -z << parameters.subdomain >> ]; then
               echo "ERROR: required variables are not specified, check your script invocation"
               exit 1
             fi
       - run:
-          name: sending request
+          name: DNSimple - sending request
           command: |
             shopt -s expand_aliases
             status_code=$(curl --write-out %{http_code} --silent --output /dev/null --request POST "https://api.dnsimple.com/v2/<< parameters.account_id >>/zones/<< parameters.zone_id >>/records" \
