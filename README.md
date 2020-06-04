@@ -9,6 +9,8 @@ The main goal of this repo is to create a Circle CI orb that connect to DNSimple
 -   validate the orb: `circleci orb validate <path to extracted file>`
 -   create a new namespace: `circleci namespace create ginetta github ginetta`
 -   create an orb and attach it to Ginetta's namespace: `circleci orb create ginetta/dnsimple-test`
+-   publish the orb: `circleci orb publish .circleci/dns-orb.yml ginetta/dnsimple-test@0.0.1`
+-   remove an existing orb: `circleci orb unlist ginetta/dnsimple-test`
 
 ## TODOs
 
