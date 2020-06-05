@@ -11,3 +11,4 @@ The main goal of this repo is to create a Circle CI orb that connect to DNSimple
 -   create an orb and attach it to Ginetta's namespace: `circleci orb create ginetta/dnsimple`
 -   publish the orb: `circleci orb publish dns-orb.yml ginetta/dnsimple@0.0.1`
 -   remove an existing orb: `circleci orb unlist ginetta/dnsimple`
+-   publish a new version of the orb: `circleci orb publish increment dns-orb.yml ginetta/dnsimple [major|minor|patch]`
