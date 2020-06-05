@@ -24,7 +24,7 @@ commands:
       content:
         description: content of the new record, to which to point to
         type: string
-        default: "cname.appuioapp.ch"
+        default: ""
     steps:
       - run:
           name: DNSimple - make sure all params all available
