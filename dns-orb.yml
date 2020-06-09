@@ -8,31 +8,19 @@ commands:
       token:
         description: api token, can be retrieved from dnsnimple's automation page, or here https://support.dnsimple.com/articles/api-access-token/
         type: string
-        default: ""
       account_id:
         description: DNSimple's account id
         type: string
-        default: ""
       zone_id:
         description: Zone id or the domain you want to manage
         type: string
-        default: ""
       subdomain:
         description: name of the new record. For more information, please see dnsimple documentation
         type: string
-        default: ""
       content:
         description: content of the new record, to which to point to
         type: string
-        default: ""
     steps:
-      - run:
-          name: DNSimple - make sure all params all available
-          command: |
-            if [ -z << parameters.token >> ] || [ -z << parameters.account_id >> ] || [ -z << parameters.zone_id >> ] || [ -z << parameters.subdomain >> ]; then
-              echo "ERROR: required variables are not specified, check your script invocation"
-              exit 1
-            fi
       - run:
           name: DNSimple - sending request
           command: |
